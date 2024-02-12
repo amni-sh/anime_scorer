@@ -21,7 +21,6 @@ def search_anime(df: pd.DataFrame, query: str):
 def main():
     df = load_data()
 
-
     if "displayed_anime" not in st.session_state:
         st.session_state.displayed_anime = []
     if "current_anime" not in st.session_state:
@@ -41,7 +40,7 @@ def main():
 
     if st.session_state.search_query:
         st.session_state.current_anime = search_anime(df, st.session_state.search_query)
-        #print(st.session_state.current_anime)
+        # print(st.session_state.current_anime)
 
     for idx, row in st.session_state.current_anime.iterrows():
         st.image(row["image_url"], width=200)
@@ -81,6 +80,7 @@ def main():
             st.download_button("ダウンロード", csv_scores, "scores.csv", "text/csv")
             # 実行を停止
             st.stop()
+
 
 if __name__ == "__main__":
     main()
