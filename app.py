@@ -4,7 +4,7 @@ import pandas as pd
 
 @st.cache_data
 def load_data():
-    return pd.read_csv("data/anime.csv")
+    return pd.read_csv("data/contents.csv")
 
 
 def counter(score_dict: dict):
@@ -18,6 +18,10 @@ def search_anime(df: pd.DataFrame, query: str):
     return pd.DataFrame()
 
 
+def next_page():
+    st.session_state.page += 1
+
+
 def main():
     df = load_data()
 
@@ -29,57 +33,71 @@ def main():
         st.session_state.scores = {}
     if "search_query" not in st.session_state:
         st.session_state.search_query = ""
+    if "page" not in st.session_state:
+        st.session_state.page = 0
 
-    rated_anime_count = counter(st.session_state.scores)
-    progress = rated_anime_count / 30
-    print(rated_anime_count, progress)
-    st.progress(min(progress, 1.0))
-
-    st.session_state.search_query = st.text_input("アニメ名で検索", st.session_state.search_query)
-    # print(f"query: {st.session_state.search_query}, {st.session_state.current_anime}")
-
-    if st.session_state.search_query:
-        st.session_state.current_anime = search_anime(df, st.session_state.search_query)
-        # print(st.session_state.current_anime)
-
-    for idx, row in st.session_state.current_anime.iterrows():
-        st.image(row["image_url"], width=200)
-        st.write(row["name"])
-
-        st.session_state.scores[row["anime_id"]] = st.slider(
-            f"スコアをつけてください ({row['name']})", 0, 10, 0, key=row["anime_id"]
+    if st.session_state.page == 0:
+        st.write("## 研究用アンケート(1/2)")
+        st.write("CloudWorksから応募いただき、ありがとうございます！")
+        st.write(
+            "このアンケートに回答する前に、必ず、[アンケート説明書](https://docs.google.com/document/d/1pZMQ-hzRkcvdb3QtmmbjFPFsEG8yVQ63lAO-VSgK5Hg/edit)をご覧ください。"
         )
+        st.write("これまでのアニメの視聴数が30本に満たない場合、申し訳ありませんが、このアンケートに参加することはできません。")
+        st.write("説明書を読んだ後、以下のボタンを押してアンケートを開始してください。")
+        st.write("アンケート中、何か質問がある場合は、cloudworksのメッセージ機能を使ってお知らせください。")
+        st.button("開始", on_click=next_page)
 
-    # 次へボタンが押されたら、スコアを保存して次の5つのアニメを表示
-    if st.button("次へ"):
-        st.session_state.search_query = ""
-        st.session_state.displayed_anime.extend(st.session_state.current_anime["anime_id"].tolist())
-        available_animes = df[~df["anime_id"].isin(st.session_state.displayed_anime)]
-        num_to_display = min(5, available_animes.shape[0])
+    elif st.session_state.page == 1:
+        rated_anime_count = counter(st.session_state.scores)
+        progress = rated_anime_count / 30
+        print(rated_anime_count, progress)
+        st.progress(min(progress, 1.0))
 
-        if rated_anime_count < 30:
-            if num_to_display > 0:
-                st.session_state.current_anime = available_animes.sample(num_to_display)
-                st.experimental_rerun()
+        st.session_state.search_query = st.text_input("アニメ名で検索", st.session_state.search_query)
+        # print(f"query: {st.session_state.search_query}, {st.session_state.current_anime}")
+
+        if st.session_state.search_query:
+            st.session_state.current_anime = search_anime(df, st.session_state.search_query)
+            # print(st.session_state.current_anime)
+
+        for idx, row in st.session_state.current_anime.iterrows():
+            st.image(row["image_url"], width=200)
+            st.write(row["name"])
+
+            st.session_state.scores[row["anime_id"]] = st.slider(
+                f"スコアをつけてください ({row['name']})", 0, 10, 0, key=row["anime_id"]
+            )
+
+        # 次へボタンが押されたら、スコアを保存して次の5つのアニメを表示
+        if st.button("次へ"):
+            st.session_state.search_query = ""
+            st.session_state.displayed_anime.extend(st.session_state.current_anime["anime_id"].tolist())
+            available_animes = df[~df["anime_id"].isin(st.session_state.displayed_anime)]
+            num_to_display = min(5, available_animes.shape[0])
+
+            if rated_anime_count < 30:
+                if num_to_display > 0:
+                    st.session_state.current_anime = available_animes.sample(num_to_display)
+                    st.experimental_rerun()
+                else:
+                    # すべてのアニメが表示されたら、ダウンロードリンクを表示
+                    st.write("評価が完了しました！ありがとうございます！")
+                    st.write("評価結果をダウンロード")
+                    scores_df = pd.DataFrame(st.session_state.scores.items(), columns=["anime_id", "rating"])
+                    # ダウンロードリンクを表示
+                    csv_scores = scores_df.to_csv(index=False)
+                    st.download_button("ダウンロード", csv_scores, "scores.csv", "text/csv")
+                    # 実行を停止
+                    st.stop()
             else:
-                # すべてのアニメが表示されたら、ダウンロードリンクを表示
                 st.write("評価が完了しました！ありがとうございます！")
                 st.write("評価結果をダウンロード")
-                scores_df = pd.DataFrame(st.session_state.scores.items(), columns=["anime_id", "score"])
+                scores_df = pd.DataFrame(st.session_state.scores.items(), columns=["anime_id", "rating"])
                 # ダウンロードリンクを表示
                 csv_scores = scores_df.to_csv(index=False)
                 st.download_button("ダウンロード", csv_scores, "scores.csv", "text/csv")
                 # 実行を停止
                 st.stop()
-        else:
-            st.write("評価が完了しました！ありがとうございます！")
-            st.write("評価結果をダウンロード")
-            scores_df = pd.DataFrame(st.session_state.scores.items(), columns=["anime_id", "score"])
-            # ダウンロードリンクを表示
-            csv_scores = scores_df.to_csv(index=False)
-            st.download_button("ダウンロード", csv_scores, "scores.csv", "text/csv")
-            # 実行を停止
-            st.stop()
 
 
 if __name__ == "__main__":
