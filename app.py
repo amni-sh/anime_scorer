@@ -42,15 +42,18 @@ def main():
         st.write(
             "このアンケートに回答する前に、必ず、[アンケート説明書](https://docs.google.com/document/d/1pZMQ-hzRkcvdb3QtmmbjFPFsEG8yVQ63lAO-VSgK5Hg/edit)をご覧ください。"
         )
-        st.write("これまでのアニメの視聴数が30本に満たない場合、申し訳ありませんが、このアンケートに参加することはできません。")
+        st.write(
+            "これまでのアニメの視聴数が30本に満たない場合、申し訳ありませんが、このアンケートに参加することはできません。"
+        )
         st.write("説明書を読んだ後、以下のボタンを押してアンケートを開始してください。")
-        st.write("アンケート中、何か質問がある場合は、cloudworksのメッセージ機能を使ってお知らせください。")
+        st.write("アンケートに関して、何か質問がある場合は、cloudworksのメッセージ機能を使ってお知らせください。")
         st.button("開始", on_click=next_page)
 
     elif st.session_state.page == 1:
         rated_anime_count = counter(st.session_state.scores)
         progress = rated_anime_count / 30
-        print(rated_anime_count, progress)
+        # print(rated_anime_count, progress)
+        st.write(f"{min(len(st.session_state.displayed_anime), len(df))} / {len(df)}")
         st.progress(min(progress, 1.0))
 
         st.session_state.search_query = st.text_input("アニメ名で検索", st.session_state.search_query)
