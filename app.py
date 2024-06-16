@@ -40,7 +40,7 @@ def main():
         st.write("## 研究用アンケート(1/2)")
         st.write("CloudWorksから応募いただき、ありがとうございます！")
         st.write(
-            "このアンケートに回答する前に、必ず、[アンケート説明書](https://docs.google.com/document/d/1pZMQ-hzRkcvdb3QtmmbjFPFsEG8yVQ63lAO-VSgK5Hg/edit)をご覧ください。"
+            "このアンケートに回答する前に、必ず、アンケート説明書(アンケート説明.pdf)をご覧ください。"
         )
         st.write(
             "これまでのアニメの視聴数が30本に満たない場合、申し訳ありませんが、このアンケートに参加することはできません。"
