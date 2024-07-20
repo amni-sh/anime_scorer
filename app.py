@@ -48,6 +48,13 @@ def main():
         st.button("開始", on_click=next_page)
 
     elif st.session_state.page == 1:
+        st.sidebar.write("0から10の11段階で評価してください。")
+        st.sidebar.markdown("- 0: 視聴していない")
+        st.sidebar.markdown("- 1: 全く良くなかった")
+        st.sidebar.markdown("- 5: どちらでもない")
+        st.sidebar.markdown("- 10: 非常に良かった")
+        st.sidebar.markdown("※リロードすると、最初からになるので注意してください。")
+        st.sidebar.markdown("※アンケートの最後に結果をダウンロードするのを忘れないでください。")
         rated_anime_count = counter(st.session_state.scores)
         progress = rated_anime_count / 30
         # print(rated_anime_count, progress)
