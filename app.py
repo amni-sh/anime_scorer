@@ -31,8 +31,8 @@ def main():
         st.session_state.current_anime = df.sample(5)
     if "scores" not in st.session_state:
         st.session_state.scores = {}
-    if "search_query" not in st.session_state:
-        st.session_state.search_query = ""
+    # if "search_query" not in st.session_state:
+    #    st.session_state.search_query = ""
     if "page" not in st.session_state:
         st.session_state.page = 0
 
@@ -61,12 +61,11 @@ def main():
         st.write(f"{min(len(st.session_state.displayed_anime), len(df))} / {len(df)}")
         st.progress(min(progress, 1.0))
 
-        st.session_state.search_query = st.text_input("アニメ名で検索", st.session_state.search_query)
+        # st.session_state.search_query = st.text_input("アニメ名で検索", st.session_state.search_query)
         # print(f"query: {st.session_state.search_query}, {st.session_state.current_anime}")
 
-        if st.session_state.search_query:
-            st.session_state.current_anime = search_anime(df, st.session_state.search_query)
-            # print(st.session_state.current_anime)
+        # if st.session_state.search_query:
+        #    st.session_state.current_anime = search_anime(df, st.session_state.search_query)
 
         for idx, row in st.session_state.current_anime.iterrows():
             st.image(row["image_url"], width=200)
@@ -80,7 +79,7 @@ def main():
 
         # 次へボタンが押されたら、スコアを保存して次の5つのアニメを表示
         if st.button("次へ"):
-            st.session_state.search_query = ""
+            # st.session_state.search_query = ""
             st.session_state.displayed_anime.extend(st.session_state.current_anime["itemId"].tolist())
             available_animes = df[~df["itemId"].isin(st.session_state.displayed_anime)]
             num_to_display = min(5, available_animes.shape[0])
